@@ -31,7 +31,7 @@ public final class MetricFilter extends GenericFilterBean {
 
   @Override
   protected void initFilterBean() throws ServletException {
-    LOG.info("Initializing MetricFilterBean {}", this);
+    LOG.info("Initializing MetricFilter {}", this);
     Metrics.getSingleton().enableSlf4j();
   }
 
@@ -58,7 +58,7 @@ public final class MetricFilter extends GenericFilterBean {
 
   @Override
   public void destroy() {
-    LOG.info("Destroy MetricFilterBean {}", this);
+    LOG.info("Destroy MetricFilter {}", this);
   }
 
   class HttpStatusTraceResponse extends HttpServletResponseWrapper {

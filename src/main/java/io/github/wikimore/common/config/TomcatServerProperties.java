@@ -3,7 +3,7 @@ package io.github.wikimore.common.config;
 /**
  * @author Ted Wang
  */
-public class TomcatServerConfig {
+public class TomcatServerProperties {
   private int port = 8080;
   private int maxThreads = 10;
   private int minThreads = 10;
