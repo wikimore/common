@@ -38,6 +38,7 @@
     <spring.version>5.3.27</spring.version>
     <tomcat.version>9.0.73</tomcat.version>
     <jackson.version>2.14.2</jackson.version>
+    <fastjson.version>2.0.32</fastjson.version>
     <guava.version>31.1-jre</guava.version>
     <metrics.version>4.2.17</metrics.version>
     <log4j.version>2.19.0</log4j.version>
@@ -45,6 +46,12 @@
     <mockito.version>4.5.1</mockito.version>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>com.alibaba.fastjson2</groupId>
+      <artifactId>fastjson2</artifactId>
+      <version>${fastjson.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
