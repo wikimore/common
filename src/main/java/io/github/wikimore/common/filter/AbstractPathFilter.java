@@ -1,6 +1,3 @@
-/*
- * 文件名称: AbstractPathFilter.java Copyright 2011-2016 Ximalaya All right reserved.
- */
 package io.github.wikimore.common.filter;
 
 import org.springframework.web.filter.GenericFilterBean;

@@ -1,6 +1,3 @@
-/*
- * 文件名称: BusinessException.java Copyright 2011-2015 Ximalaya All right reserved.
- */
 package io.github.wikimore.common.web;
 
 /**

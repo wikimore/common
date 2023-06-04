@@ -1,22 +1,6 @@
-/*
- * 文件名称: ResponseDataReturnValueHandler.java Copyright 2011-2015 Ximalaya All right reserved.
- */
 package io.github.wikimore.common.web;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson2.JSON;
 import org.springframework.context.MessageSource;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -32,7 +16,11 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
 
-import com.alibaba.fastjson2.JSON;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * 处理Controller中增加注解@Response方法的返回值，将Controller的方法返回值设置到一个WebResult对象， 然后使用JSON方式序列化该WebResult对象

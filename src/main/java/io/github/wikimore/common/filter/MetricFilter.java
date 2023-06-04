@@ -1,6 +1,3 @@
-/*
- * 文件名称: ICollectService.java Copyright 2011-2014 Ximalaya All right reserved.
- */
 package io.github.wikimore.common.filter;
 
 import com.codahale.metrics.Timer;

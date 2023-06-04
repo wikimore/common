@@ -1,6 +1,3 @@
-/*
- * 文件名称: WebBusinessException.java Copyright 2011-2015 Ximalaya All right reserved.
- */
 package io.github.wikimore.common.web;
 
 
@@ -10,10 +7,6 @@ package io.github.wikimore.common.web;
  * @author Ted Wang
  */
 public class WebBusinessException extends BusinessException {
-  /**
-   *
-   */
-  private static final long serialVersionUID = 3790663970403743306L;
   private int statusCode = 500; // http状态码
 
   public WebBusinessException(int code) {

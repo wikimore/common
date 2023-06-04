@@ -1,6 +1,3 @@
-/*
- * 文件名称: Slf4jReporterBean.java Copyright 2011-2014 Ximalaya All right reserved.
- */
 package io.github.wikimore.common.metric;
 
 import org.springframework.beans.factory.DisposableBean;

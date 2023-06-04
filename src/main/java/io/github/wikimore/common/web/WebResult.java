@@ -3,7 +3,7 @@ package io.github.wikimore.common.web;
 /**
  * @author Ted Wang
  */
-public class WebResult<T> {
+public final class WebResult<T> {
 
   private int ret;
   private String msg;
