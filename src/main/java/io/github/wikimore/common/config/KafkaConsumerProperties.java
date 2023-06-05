@@ -3,18 +3,9 @@ package io.github.wikimore.common.config;
 /**
  * @author Ted Wang
  */
-public class KafkaProperties {
-  private String bootstrapServers;
+public class KafkaConsumerProperties {
   private String groupId;
   private String autoOffsetReset = "latest";
-
-  public String getBootstrapServers() {
-    return bootstrapServers;
-  }
-
-  public void setBootstrapServers(String bootstrapServers) {
-    this.bootstrapServers = bootstrapServers;
-  }
 
   public String getGroupId() {
     return groupId;
