@@ -1,6 +1,8 @@
 package io.github.wikimore.common.web;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONReader;
+import com.alibaba.fastjson2.JSONWriter;
 import org.springframework.context.MessageSource;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -38,6 +40,7 @@ public class ResponseReturnValueHandler implements HandlerMethodReturnValueHandl
     this.httpMessageConverter = httpMessageConverter;
     this.allSupportedMediaTypes = getAllSupportedMediaTypes(httpMessageConverter);
     this.messageSource = messageSource;
+    JSON.config(JSONWriter.Feature.WriteNulls);
   }
 
   /**
@@ -104,8 +107,8 @@ public class ResponseReturnValueHandler implements HandlerMethodReturnValueHandl
     if (returnValue instanceof WebResult) {
       webResult = (WebResult) returnValue;
       // if ret not equals to 0, should try to set value into msg
-      if (webResult.getRet() != 0 && null == webResult.getMsg()) {
-        String returnCode = String.valueOf(webResult.getRet());
+      if (webResult.getCode() != 0 && null == webResult.getMsg()) {
+        String returnCode = String.valueOf(webResult.getCode());
         String msg = messageSource.getMessage(returnCode, null, "error", Locale.CHINA);
         webResult.setMsg(msg);
       }

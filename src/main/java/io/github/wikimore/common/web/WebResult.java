@@ -5,36 +5,41 @@ package io.github.wikimore.common.web;
  */
 public final class WebResult<T> {
 
-  private int ret;
+  private int code;
   private String msg;
   private T data;
 
   public WebResult() {
-    this.ret = 0;
+    this.code = 0;
     this.msg = null;
     this.data = null;
   }
 
   public WebResult(T data) {
-    this.ret = 0;
+    this.code = 0;
     this.msg = null;
     this.data = data;
   }
 
-  public WebResult(int ret, T data) {
-    this.ret = ret;
+  public WebResult(int code, T data) {
+    this.code = code;
     this.msg = null;
     this.data = data;
   }
 
-  public WebResult(int ret, String msg, T data) {
-    this.ret = ret;
+  public WebResult(int code, String msg, T data) {
+    this.code = code;
     this.msg = msg;
     this.data = data;
   }
 
-  public int getRet() {
-    return ret;
+  public WebResult(int code, String msg) {
+    this.code = code;
+    this.msg = msg;
+  }
+
+  public int getCode() {
+    return code;
   }
 
   public String getMsg() {
@@ -45,8 +50,8 @@ public final class WebResult<T> {
     return data;
   }
 
-  public void setRet(int ret) {
-    this.ret = ret;
+  public void setCode(int code) {
+    this.code = code;
   }
 
   public void setMsg(String msg) {

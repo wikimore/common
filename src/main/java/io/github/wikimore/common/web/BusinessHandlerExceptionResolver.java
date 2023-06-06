@@ -1,5 +1,6 @@
 package io.github.wikimore.common.web;
 
+import com.alibaba.fastjson2.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -61,7 +62,7 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
 
   @Override
   protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-    String message = "unexpected exception";
+    String message = "unknown error";
     int code = 0;
     if (ex instanceof WebBusinessException) {
       WebBusinessException businessException = (WebBusinessException) ex;
@@ -150,13 +151,8 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
   }
 
   protected String buildJSONMessage(int code, String message) {
-    StringBuilder jsonBuilder = new StringBuilder("{\"code\":");
-    jsonBuilder.append(code).append(",").append("\"msg\":\"");
-    if (message == null) {
-      jsonBuilder.append("unknown error");
-    }
-    jsonBuilder.append("\"}");
-    return jsonBuilder.toString();
+    WebResult result = new WebResult(code, message);
+    return JSON.toJSONString(result);
   }
 
   @Override
