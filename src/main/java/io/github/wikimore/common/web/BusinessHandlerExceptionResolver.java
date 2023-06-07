@@ -1,17 +1,17 @@
 package io.github.wikimore.common.web;
 
-import com.alibaba.fastjson2.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -43,11 +43,15 @@ import java.util.Set;
  */
 public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionResolver {
   private static final Logger LOG = LoggerFactory.getLogger(BusinessHandlerExceptionResolver.class);
-  @Autowired
   private MessageSource messageSource;
+  private HttpMessageConverter<Object> httpMessageConverter;
+  private MediaType mediaType = new MediaType("application", "json", StandardCharsets.UTF_8);
   private final Set<Integer> errorStatusCodes = new HashSet<Integer>();
 
-  public BusinessHandlerExceptionResolver() {
+  public BusinessHandlerExceptionResolver(MessageSource messageSource, HttpMessageConverter<Object> httpMessageConverter) {
+    this.messageSource = messageSource;
+    this.httpMessageConverter = httpMessageConverter;
+
     setPreventResponseCaching(true); // 防止错误结果被cache
     errorStatusCodes.add(400);
     errorStatusCodes.add(401);
@@ -58,6 +62,10 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
 
   public void setMessageSource(MessageSource messageSource) {
     this.messageSource = messageSource;
+  }
+
+  public void setHttpMessageConverter(HttpMessageConverter<Object> httpMessageConverter) {
+    this.httpMessageConverter = httpMessageConverter;
   }
 
   @Override
@@ -74,85 +82,85 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
       } else {
         message = businessException.getMessage();
       }
-      String jsonMessage = buildJSONMessage(code, message);
+      WebResult webResult = buildWebResult(code, message);
       if (businessException.getStatusCode() != HttpStatus.OK.value()) {
         int errorStatusCode = businessException.getStatusCode();
         boolean isLegalStatusCode = isErrorStatusCode(errorStatusCode);
         if (!isLegalStatusCode) {
           errorStatusCode = 500;
         }
-        handleErrorResponse(request, response, errorStatusCode, jsonMessage);
+        handleErrorResponse(request, response, errorStatusCode, webResult);
       } else {
-        handle200Response(request, response, jsonMessage);
+        handle200Response(request, response, webResult);
       }
     } else if (ex instanceof HttpRequestMethodNotSupportedException) {
       LOG.warn("HttpRequestMethodNotSupportedException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_METHOD_NOT_ALLOWED, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_METHOD_NOT_ALLOWED, result);
     } else if (ex instanceof HttpMediaTypeNotSupportedException) {
       LOG.warn("HttpMediaTypeNotSupportedException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, result);
     } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
       LOG.warn("HttpMediaTypeNotAcceptableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_NOT_ACCEPTABLE, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_NOT_ACCEPTABLE, result);
     } else if (ex instanceof MissingPathVariableException) {
       LOG.warn("MissingPathVariableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof MissingServletRequestParameterException) {
       LOG.warn("MissingServletRequestParameterException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof ServletRequestBindingException) {
       LOG.warn("ServletRequestBindingException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof ConversionNotSupportedException) {
       LOG.warn("ConversionNotSupportedException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, result);
     } else if (ex instanceof TypeMismatchException) {
       LOG.warn("TypeMismatchException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof HttpMessageNotReadableException) {
       LOG.warn("HttpMessageNotReadableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof HttpMessageNotWritableException) {
       LOG.warn("HttpMessageNotWritableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, result);
     } else if (ex instanceof MethodArgumentNotValidException) {
       LOG.warn("MethodArgumentNotValidException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof MissingServletRequestPartException) {
       LOG.warn("MissingServletRequestPartException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof BindException) {
       LOG.warn("BindException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof NoHandlerFoundException) {
       LOG.warn("NoHandlerFoundException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_NOT_FOUND, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_NOT_FOUND, result);
     } else {
       String errorMessage = buildLogMessage(ex, request);
       LOG.warn(errorMessage, ex);
-      String jsonMessage = buildJSONMessage(BizCode.SYSTEM_ERROR, ex.getMessage());
-      handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, jsonMessage);
+      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, result);
     }
     return new ModelAndView();
   }
 
-  protected String buildJSONMessage(int code, String message) {
+  protected WebResult buildWebResult(int code, String message) {
     WebResult result = new WebResult(code, message);
-    return JSON.toJSONString(result);
+    return result;
   }
 
   @Override
@@ -182,12 +190,15 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
     return Ordered.HIGHEST_PRECEDENCE;
   }
 
-  private void handleErrorResponse(HttpServletRequest request, HttpServletResponse response, int statusCode, String message) {
+  private void handleErrorResponse(HttpServletRequest request, HttpServletResponse response, int statusCode, WebResult message) {
+    ServletServerHttpResponse outputMessage = new ServletServerHttpResponse(response);
+    HttpStatus httpStatus = HttpStatus.resolve(statusCode);
+    if (httpStatus == null) {
+      httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+    outputMessage.setStatusCode(httpStatus);
     try {
-      response.setStatus(statusCode);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-      response.setCharacterEncoding("UTF-8");
-      response.getOutputStream().write(message.getBytes(StandardCharsets.UTF_8));
+      httpMessageConverter.write(message, mediaType, outputMessage);
     } catch (IOException e) {
       LOG.error("send response failed, request url is {}", request.getRequestURI(), e);
     } catch (IllegalStateException e) {
@@ -196,12 +207,11 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
     }
   }
 
-  private void handle200Response(HttpServletRequest request, HttpServletResponse response, String message) {
+  private void handle200Response(HttpServletRequest request, HttpServletResponse response, WebResult message) {
+    ServletServerHttpResponse outputMessage = new ServletServerHttpResponse(response);
+    outputMessage.setStatusCode(HttpStatus.OK);
     try {
-      response.setStatus(HttpStatus.OK.value());
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-      response.setCharacterEncoding("UTF-8");
-      response.getOutputStream().write(message.getBytes(StandardCharsets.UTF_8));
+      httpMessageConverter.write(message, mediaType, outputMessage);
     } catch (IOException e) {
       LOG.error("send 200 response failed, request url is {}", request.getRequestURI(), e);
     } catch (IllegalStateException e) {

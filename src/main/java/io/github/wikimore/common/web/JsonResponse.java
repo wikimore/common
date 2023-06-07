@@ -9,11 +9,9 @@ import java.lang.annotation.*;
  * 注解表示一个方法返回的对象将被包装到一个WebResult的data字段中
  *
  * @author Ted Wang
- * @deprecated use JsonResponse and JsonResponseReturnValueHandler
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Deprecated
-public @interface Response {
+public @interface JsonResponse {
 }

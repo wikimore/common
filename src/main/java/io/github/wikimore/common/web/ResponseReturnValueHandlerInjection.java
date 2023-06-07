@@ -17,6 +17,7 @@ import java.util.List;
  *
  * @author Ted Wang
  */
+@Deprecated
 public class ResponseReturnValueHandlerInjection implements BeanPostProcessor {
   @Autowired
   private MessageSource messageSource;

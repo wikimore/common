@@ -1,9 +1,5 @@
 package io.github.wikimore.common.web;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONReader;
-import com.alibaba.fastjson2.JSONWriter;
-import org.springframework.context.MessageSource;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
@@ -25,31 +21,26 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 /**
- * 处理Controller中增加注解@Response方法的返回值，将Controller的方法返回值设置到一个WebResult对象， 然后使用JSON方式序列化该WebResult对象
+ * 处理Controller中增加注解@JsonResponse方法的返回值，将Controller的方法返回值设置到一个WebResult对象， 然后使用JSON方式序列化该WebResult对象
  *
  * @author Ted Wang
- * @deprecated use JsonResponse and JsonResponseReturnValueHandler
  */
-@Deprecated
-public class ResponseReturnValueHandler implements HandlerMethodReturnValueHandler {
+public class JsonResponseReturnValueHandler implements HandlerMethodReturnValueHandler {
   private static final MediaType MEDIA_TYPE_APPLICATION = new MediaType("application");
   protected final List<MediaType> allSupportedMediaTypes;
-  private final HttpMessageConverter<String> httpMessageConverter;
+  private final HttpMessageConverter<Object> httpMessageConverter;
   private MediaType defaultSuppertMediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-  private MessageSource messageSource;
 
-  public ResponseReturnValueHandler(HttpMessageConverter<String> httpMessageConverter, MessageSource messageSource) {
+  public JsonResponseReturnValueHandler(HttpMessageConverter<Object> httpMessageConverter) {
     this.httpMessageConverter = httpMessageConverter;
     this.allSupportedMediaTypes = getAllSupportedMediaTypes(httpMessageConverter);
-    this.messageSource = messageSource;
-    JSON.config(JSONWriter.Feature.WriteNulls);
   }
 
   /**
    * Returns the media types supported by all provided message converters preserving their ordering
    * and further sorting by specificity via {@link MediaType#sortBySpecificity(List)}.
    */
-  private static List<MediaType> getAllSupportedMediaTypes(HttpMessageConverter<String> messageConverter) {
+  private static List<MediaType> getAllSupportedMediaTypes(HttpMessageConverter<Object> messageConverter) {
     Set<MediaType> allSupportedMediaTypes = new LinkedHashSet<MediaType>();
     allSupportedMediaTypes.addAll(messageConverter.getSupportedMediaTypes());
     List<MediaType> result = new ArrayList<MediaType>(allSupportedMediaTypes);
@@ -59,10 +50,10 @@ public class ResponseReturnValueHandler implements HandlerMethodReturnValueHandl
 
   @Override
   public boolean supportsReturnType(MethodParameter returnType) {
-    return (returnType.getMethodAnnotation(Response.class) != null);
+    return (returnType.getMethodAnnotation(JsonResponse.class) != null);
   }
 
-  protected void hanldeReturnValue(String retrunValue, ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage) throws HttpMediaTypeNotAcceptableException, IOException {
+  protected void handleReturnValue(WebResult result, ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage) throws HttpMediaTypeNotAcceptableException, IOException {
     List<MediaType> acceptableMediaTypes = getAcceptableMediaTypes(inputMessage);
     List<MediaType> producibleMediaTypes = getProducibleMediaTypes(inputMessage.getServletRequest(), String.class);
 
@@ -96,7 +87,7 @@ public class ResponseReturnValueHandler implements HandlerMethodReturnValueHandl
     }
 
     if (selectedMediaType != null) {
-      httpMessageConverter.write(retrunValue, defaultSuppertMediaType, outputMessage);
+      httpMessageConverter.write(result, defaultSuppertMediaType, outputMessage);
       return;
     }
     throw new HttpMediaTypeNotAcceptableException(allSupportedMediaTypes);
@@ -105,23 +96,10 @@ public class ResponseReturnValueHandler implements HandlerMethodReturnValueHandl
   @Override
   public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws HttpMediaTypeNotAcceptableException, IOException {
     mavContainer.setRequestHandled(true);
-    WebResult webResult = null;
-    if (returnValue instanceof WebResult) {
-      webResult = (WebResult) returnValue;
-      // if ret not equals to 0, should try to set value into msg
-      if (webResult.getCode() != 0 && null == webResult.getMsg()) {
-        String returnCode = String.valueOf(webResult.getCode());
-        String msg = messageSource.getMessage(returnCode, null, "error", Locale.CHINA);
-        webResult.setMsg(msg);
-      }
-    } else {
-      // set returnValue into data
-      webResult = new WebResult(returnValue);
-    }
-    String result = JSON.toJSONString(webResult);
+    WebResult result = new WebResult(returnValue);
     ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
     ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
-    hanldeReturnValue(result, inputMessage, outputMessage);
+    handleReturnValue(result, inputMessage, outputMessage);
   }
 
   /**
