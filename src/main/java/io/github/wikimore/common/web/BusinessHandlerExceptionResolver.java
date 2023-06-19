@@ -95,64 +95,64 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
       }
     } else if (ex instanceof HttpRequestMethodNotSupportedException) {
       LOG.warn("HttpRequestMethodNotSupportedException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_METHOD_NOT_ALLOWED, result);
     } else if (ex instanceof HttpMediaTypeNotSupportedException) {
       LOG.warn("HttpMediaTypeNotSupportedException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, result);
     } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
       LOG.warn("HttpMediaTypeNotAcceptableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_NOT_ACCEPTABLE, result);
     } else if (ex instanceof MissingPathVariableException) {
       LOG.warn("MissingPathVariableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof MissingServletRequestParameterException) {
       LOG.warn("MissingServletRequestParameterException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof ServletRequestBindingException) {
       LOG.warn("ServletRequestBindingException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof ConversionNotSupportedException) {
       LOG.warn("ConversionNotSupportedException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, result);
     } else if (ex instanceof TypeMismatchException) {
       LOG.warn("TypeMismatchException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof HttpMessageNotReadableException) {
       LOG.warn("HttpMessageNotReadableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof HttpMessageNotWritableException) {
       LOG.warn("HttpMessageNotWritableException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, result);
     } else if (ex instanceof MethodArgumentNotValidException) {
       LOG.warn("MethodArgumentNotValidException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof MissingServletRequestPartException) {
       LOG.warn("MissingServletRequestPartException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof BindException) {
       LOG.warn("BindException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_BAD_REQUEST, result);
     } else if (ex instanceof NoHandlerFoundException) {
       LOG.warn("NoHandlerFoundException {}, url is {}", ex.getMessage(), request.getRequestURI());
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_NOT_FOUND, result);
     } else {
       String errorMessage = buildLogMessage(ex, request);
       LOG.warn(errorMessage, ex);
-      WebResult result = buildWebResult(BizCode.SYSTEM_ERROR, ex.getMessage());
+      WebResult result = buildWebResult(50, ex.getMessage());
       handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, result);
     }
     return new ModelAndView();
