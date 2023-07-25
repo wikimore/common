@@ -43,6 +43,7 @@ import java.util.Set;
  */
 public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionResolver {
   private static final Logger LOG = LoggerFactory.getLogger(BusinessHandlerExceptionResolver.class);
+  private static final String UNKNOWN_ERROR = "unknown error";
   private MessageSource messageSource;
   private HttpMessageConverter<Object> httpMessageConverter;
   private MediaType mediaType = new MediaType("application", "json", StandardCharsets.UTF_8);
@@ -79,15 +80,21 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
       if (messageSource != null) {
         message = messageSource.getMessage(String.valueOf(businessException.getCode()), null,
                                            businessException.getMessage(), null);
-      } else {
-        message = businessException.getMessage();
       }
+      if (message == null) {
+        message = UNKNOWN_ERROR;
+      }
+
+      // 打印错误日志
+      String errorMessage = buildLogMessage(ex, request);
+      LOG.error(errorMessage, ex);
+
       WebResult webResult = buildWebResult(code, message);
       if (businessException.getStatusCode() != HttpStatus.OK.value()) {
         int errorStatusCode = businessException.getStatusCode();
         boolean isLegalStatusCode = isErrorStatusCode(errorStatusCode);
         if (!isLegalStatusCode) {
-          errorStatusCode = 500;
+          errorStatusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
         handleErrorResponse(request, response, errorStatusCode, webResult);
       } else {
@@ -152,7 +159,7 @@ public class BusinessHandlerExceptionResolver extends AbstractHandlerExceptionRe
     } else {
       String errorMessage = buildLogMessage(ex, request);
       LOG.warn(errorMessage, ex);
-      WebResult result = buildWebResult(50, ex.getMessage());
+      WebResult result = buildWebResult(50, UNKNOWN_ERROR);
       handleErrorResponse(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, result);
     }
     return new ModelAndView();
