@@ -1,5 +1,7 @@
 package io.github.wikimore.common.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -17,6 +19,8 @@ import java.util.regex.Pattern;
  * @author Ted Wang
  */
 public abstract class AbstractPathFilter extends GenericFilterBean {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractPathFilter.class);
   private List<String> includePathPatterns;
   private List<String> excludePathPatterns;
   private List<Pattern> preparedIncludePathPatterns = new ArrayList<Pattern>();
@@ -40,6 +44,7 @@ public abstract class AbstractPathFilter extends GenericFilterBean {
 
   @Override
   protected void initFilterBean() throws ServletException {
+    LOG.info("Initializing Filter {}", this);
     preparedIncludePathPatterns.clear();
     preparedExcludePathPatterns.clear();
     if (null != getIncludePathPatterns()) {
@@ -57,7 +62,7 @@ public abstract class AbstractPathFilter extends GenericFilterBean {
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-      ServletException {
+          ServletException {
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
     String uri = httpServletRequest.getRequestURI();
@@ -86,15 +91,15 @@ public abstract class AbstractPathFilter extends GenericFilterBean {
   }
 
   protected abstract void doFilterInclude(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-      throws IOException, ServletException;
+          throws IOException, ServletException;
 
   protected void doFilterExclude(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
+          throws IOException, ServletException {
     chain.doFilter(request, response);
   }
 
   protected void doFilterIgnore(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
+          throws IOException, ServletException {
     chain.doFilter(request, response);
   }
 

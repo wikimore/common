@@ -96,9 +96,15 @@ public class JsonResponseReturnValueHandler implements HandlerMethodReturnValueH
   @Override
   public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws HttpMediaTypeNotAcceptableException, IOException {
     mavContainer.setRequestHandled(true);
-    WebResult result = new WebResult(returnValue);
+
     ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
     ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
+    WebResult result = null;
+    if (returnValue instanceof WebResult) {
+      result = (WebResult) returnValue;
+    } else {
+      result = new WebResult(returnValue);
+    }
     handleReturnValue(result, inputMessage, outputMessage);
   }
 
